@@ -81,15 +81,19 @@ Before you begin, ensure you have the following prerequisites in place:
   - Universal Gateway (GW) - [wso2am-universal-gw](https://hub.docker.com/r/wso2/wso2am-universal-gw)
 
 - Since the products need to connect to databases at runtime, you need to include the relevant JDBC drivers in the distribution. This can be included in the Docker image building stage. For example, you can add the MySQL driver as follows:
-  ```dockerfile
-  ADD --chown=wso2carbon:wso2 https://repo1.maven.org/maven2/mysql/mysql-connector-java/8.0.28/mysql-connector-java-8.0.28.jar ${WSO2_SERVER_HOME}/repository/components/lib
-  ```
+
+!!! example "Add MySQL JDBC Driver"
+    ```dockerfile
+    ADD --chown=wso2carbon:wso2 https://repo1.maven.org/maven2/mysql/mysql-connector-java/8.0.28/mysql-connector-java-8.0.28.jar ${WSO2_SERVER_HOME}/repository/components/lib
+    ```
 - Furthermore, if there are any customizations to the JARs in the product, those can be included in the Docker image itself rather than mounting them from the deployment level (assuming that they are common to all environments).
 - The following is a sample Dockerfile to build a custom WSO2 APIM image. Depending on your requirements, you may refer to the following and make the necessary additions. The script below will do the following:
   - Use WSO2 APIM 4.5.0 as the base image
   - Copy third-party libraries to the `<APIM_HOME>/lib` directory
 
   - Dockerfile for API Control Plane
+
+!!! example "Sample Dockerfile for API Control Plane"
     ```dockerfile
     FROM docker.wso2.com/wso2am-acp:4.5.0.0
 
@@ -104,6 +108,8 @@ Before you begin, ensure you have the following prerequisites in place:
     ```
   
   - Dockerfile for Traffic Manager
+
+!!! example "Sample Dockerfile for Traffic Manager"
     ```dockerfile
     FROM docker.wso2.com/wso2am-tm:4.5.0.0
 
@@ -118,6 +124,8 @@ Before you begin, ensure you have the following prerequisites in place:
     ```
   
   - Dockerfile for Universal Gateway
+
+!!! example "Sample Dockerfile for Universal Gateway"
     ```dockerfile
     FROM docker.wso2.com/wso2am-universal-gw:4.5.0.0
 
@@ -145,19 +153,21 @@ Before you begin, ensure you have the following prerequisites in place:
 - Before running the API Manager, you must configure the databases and populate them with the initial data. All required database scripts are available in the `dbscripts` directory of the product pack. Locate the appropriate scripts for your chosen database engine and execute them accordingly. It is recommended to use two separate database users with limited permissions for enhanced security.
 
 - An example for MySQL is provided below.
-  ```sql
-  CREATE DATABASE apim_db CHARACTER SET latin1;
-  CREATE DATABASE shared_db CHARACTER SET latin1;
 
-  GRANT ALL ON apim_db.* TO 'apimadmin'@'%';
+!!! example "MySQL Database Setup"
+    ```sql
+    CREATE DATABASE apim_db CHARACTER SET latin1;
+    CREATE DATABASE shared_db CHARACTER SET latin1;
 
-  CREATE USER 'sharedadmin'@'%' IDENTIFIED BY 'sharedadmin';
-  GRANT ALL ON shared_db.* TO 'sharedadmin'@'%';
-  ```
-  ```bash
-  mysql -h <DB_HOST> -P 3306 -u sharedadmin -p -Dshared_db < './dbscripts/mysql.sql';
-  mysql -h <DB_HOST> -P 3306 -u apimadmin -p -Dapim_db < './dbscripts/apimgt/mysql.sql';
-  ```
+    GRANT ALL ON apim_db.* TO 'apimadmin'@'%';
+
+    CREATE USER 'sharedadmin'@'%' IDENTIFIED BY 'sharedadmin';
+    GRANT ALL ON shared_db.* TO 'sharedadmin'@'%';
+    ```
+    ```bash
+    mysql -h <DB_HOST> -P 3306 -u sharedadmin -p -Dshared_db < './dbscripts/mysql.sql';
+    mysql -h <DB_HOST> -P 3306 -u apimadmin -p -Dapim_db < './dbscripts/apimgt/mysql.sql';
+    ```
 
 ## Minimal Configuration
 
@@ -260,19 +270,21 @@ The recommendation is to use the [**NGINX Ingress Controller**](https://kubernet
 - Also, the apictl can be used to encrypt passwords as well. Reference can be found in the [following](https://apim.docs.wso2.com/en/latest/install-and-setup/setup/api-controller/encrypting-secrets-with-ctl/).
 - Then the encrypted values should be filled in the relevant fields of values.yaml.
 - Since the internal keystore password is required to resolve the encrypted value at runtime, you need to store the value in the cloud provider's secret manager. You can use the cloud provider's secret store to store the password of the internal keystore. The following section can be used to add the cloud provider's credentials to fetch the internal keystore password. Configuration for AWS can be as below: 
-  ```yaml
-  internalKeystorePassword:
-    # -- AWS Secrets Manager secret name
-    secretName: ""
-    # -- AWS Secrets Manager secret key
-    secretKey: ""
-  ```
+!!! example "AWS Secrets Manager Configuration"
+    ```yaml
+    internalKeystorePassword:
+      # -- AWS Secrets Manager secret name
+      secretName: ""
+      # -- AWS Secrets Manager secret key
+      secretKey: ""
+    ```
   > Please note that currently AWS, Azure, and GCP Secrets Managers are only supported for this.
 
 #### 1.4 Configure Docker Image and Databases
 
   - Add the following configurations to reflect the Docker image created previously in the Helm chart.
     
+!!! example "Docker Image Configuration"
     ```yaml
     wso2:
       deployment:
@@ -291,6 +303,7 @@ The recommendation is to use the [**NGINX Ingress Controller**](https://kubernet
 
   - Provide the database configurations under the following section.
 
+!!! example "Database Configuration"
     ```yaml
     wso2:
       apim:
@@ -312,6 +325,8 @@ The recommendation is to use the [**NGINX Ingress Controller**](https://kubernet
       - [Traffic Manager](https://github.com/wso2/helm-apim/blob/main/distributed/traffic-manager/README.md)
       - [Universal Gateway](https://github.com/wso2/helm-apim/blob/main/distributed/gateway/README.md)
     - Update the admin credentials in the configuration directory.
+
+!!! example "Admin Credentials"
     ```yaml
       # -- Super admin username
       adminUsername: ""
